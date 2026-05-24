@@ -48,11 +48,41 @@ public:
   }
 
 private:
-  void laserscan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {}
+  void laserscan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
+    min_angle_ = msg->angle_min;
+    angle_increment_ = msg->angle_increment;
+    // initialize index and max_distance for our callback
+    size_t max_distance_index{0};
+    float max_distance{0.0f};
+
+    // Go from index 50 to 150 to find the maximum distance and index where this
+    // occurs
+    for (size_t i = min_laser_range_; i < max_laser_range_; ++i) {
+      float range = msg->ranges[i];
+      if (std::isfinite(range) && (max_distance < range)) {
+
+        max_distance = range;
+        max_distance_index = i;
+      }
+    }
+    // RCLCPP_INFO(this->get_logger(),
+    //             "Max distance is %.2f, max distance index is %zu",
+    //             max_distance, max_distance_index);
+    // Determine angle we should face w.r.t. the x axis
+    direction_ = min_angle_ + max_distance_index * angle_increment_;
+    // RCLCPP_INFO(this->get_logger(), "Recommended direction of travel is
+    // %.2f",
+    //             direction_);
+  }
 
 private:
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr
       subscriber_laser_;
+  float angle_increment_{0.0f};
+  float min_angle_{0.0f};
+  float direction_{0.0f};
+  static constexpr size_t min_laser_range_{50};
+  static constexpr size_t max_laser_range_{150};
 };
 
 int main(int argc, char **argv) {
