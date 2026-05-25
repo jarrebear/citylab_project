@@ -1,5 +1,4 @@
-#include "rclcpp/subscription.hpp"
-#include "sensor_msgs/msg/detail/laser_scan__struct.hpp"
+#include <chrono>
 #include <cmath>
 #include <string>
 
@@ -7,9 +6,6 @@
 
 #include <geometry_msgs/msg/twist.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
-
-#include <tf2/LinearMath/Matrix3x3.h>
-#include <tf2/LinearMath/Quaternion.h>
 
 // Inside the patrol.cpp file, you need to subscribe to the laser topic and
 // capture the rays. For the sake of simplicity, use only the laser rays
@@ -37,6 +33,7 @@
 class Patrol : public rclcpp::Node {
 public:
   Patrol() : Node("patrol") {
+
     // Creat qos
     auto qos = rclcpp::QoS(10).reliability(rclcpp::ReliabilityPolicy::Reliable);
 
@@ -44,43 +41,107 @@ public:
     subscriber_laser_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
         "/fastbot_1/scan", qos,
         std::bind(&Patrol::laserscan_callback, this, std::placeholders::_1));
+
+    // Publisher for movement commands
+    publisher_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(
+        "/fastbot_1/cmd_vel", 10);
+
+    // Timer for controlling movement
+    auto timer_period = std::chrono::milliseconds(100);
+    timer_ = this->create_wall_timer(timer_period,
+                                     std::bind(&Patrol::timer_callback, this));
+
+    turn_ = false;
+
     RCLCPP_INFO(this->get_logger(), "Patrol node is ready...");
   }
 
 private:
   void laserscan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
-    min_angle_ = msg->angle_min;
-    angle_increment_ = msg->angle_increment;
+    float min_angle = msg->angle_min;
+    float angle_increment = msg->angle_increment;
+
     // initialize index and max_distance for our callback
     size_t max_distance_index{0};
     float max_distance{0.0f};
-
     // Go from index 50 to 150 to find the maximum distance and index where this
     // occurs
-    for (size_t i = min_laser_range_; i < max_laser_range_; ++i) {
-      float range = msg->ranges[i];
-      if (std::isfinite(range) && (max_distance < range)) {
 
-        max_distance = range;
+    for (size_t i = min_laser_range_ + 3; i < max_laser_range_ - 3; ++i) {
+
+      float sum = 0.0f;
+      int count = 0;
+
+      // 7-ray window: i-3 ... i+3
+      for (size_t j = i - 3; j <= i + 3; ++j) {
+
+        const float r = msg->ranges[j];
+
+        if (std::isfinite(r)) {
+          sum += r;
+          count++;
+        }
+      }
+
+      // skip invalid windows
+      if (count == 0) {
+        continue;
+      }
+
+      const float average = sum / static_cast<float>(count);
+
+      if (average > max_distance) {
+        max_distance = average;
         max_distance_index = i;
       }
     }
+
     // RCLCPP_INFO(this->get_logger(),
     //             "Max distance is %.2f, max distance index is %zu",
     //             max_distance, max_distance_index);
     // Determine angle we should face w.r.t. the x axis
-    direction_ = min_angle_ + max_distance_index * angle_increment_;
-    // RCLCPP_INFO(this->get_logger(), "Recommended direction of travel is
-    // %.2f",
+    direction_ = min_angle + max_distance_index * angle_increment;
+    // RCLCPP_INFO(this->get_logger(), "Recommended direction of travel is %.2f
+    // ",
     //             direction_);
+
+    turn_ = false;
+
+    for (size_t i = 90; i < 110; ++i) {
+
+      const float range = msg->ranges[i];
+
+      if (std::isfinite(range) && range < 0.35f) {
+        turn_ = true;
+        break;
+      }
+    }
+  }
+
+private:
+  void timer_callback() {
+    auto action = geometry_msgs::msg::Twist();
+
+    action.linear.x = 0.1;
+
+    if (turn_) {
+      action.angular.z = direction_ / 2.0;
+    } else {
+      action.angular.z = 0.0;
+    }
+    publisher_vel_->publish(action);
+    // RCLCPP_INFO(this->get_logger(), "Publishing: linear.x=%.2f,
+    // angular.z=%.2f",
+    //             action.linear.x, action.angular.z);
   }
 
 private:
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr
       subscriber_laser_;
-  float angle_increment_{0.0f};
-  float min_angle_{0.0f};
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_vel_;
+  rclcpp::TimerBase::SharedPtr timer_;
   float direction_{0.0f};
+  bool turn_;
   static constexpr size_t min_laser_range_{50};
   static constexpr size_t max_laser_range_{150};
 };
