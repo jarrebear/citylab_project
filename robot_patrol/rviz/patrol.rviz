@@ -6,10 +6,12 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Grid1/Status1
         - /Grid1/Offset1
+        - /RobotModel1
+        - /RobotModel1/Status1
         - /RobotModel1/Description Topic1
         - /TF1
+        - /LaserScan1
         - /Odometry1
         - /Odometry1/Topic1
         - /Odometry1/Shape1
@@ -79,30 +81,6 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        fastbot_1_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        fastbot_1_camera:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        fastbot_1_lidar:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        fastbot_1_wheel_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        fastbot_1_wheel_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
@@ -116,17 +94,23 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        fastbot_1_base_link:
+        base_link:
           Value: true
-        fastbot_1_camera:
+        camera_link:
           Value: true
-        fastbot_1_lidar:
+        camera_sensor:
           Value: true
-        fastbot_1_odom:
+        lidar_link:
           Value: true
-        fastbot_1_wheel_left:
+        lidar_sensor:
           Value: true
-        fastbot_1_wheel_right:
+        motor_left:
+          Value: true
+        motor_right:
+          Value: true
+        odom:
+          Value: true
+        wheel_caster:
           Value: true
       Marker Scale: 0.5
       Name: TF
@@ -134,15 +118,19 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        fastbot_1_odom:
-          fastbot_1_base_link:
-            fastbot_1_camera:
+        odom:
+          base_link:
+            camera_sensor:
+              camera_link:
+                {}
+            lidar_sensor:
+              lidar_link:
+                {}
+            motor_left:
               {}
-            fastbot_1_lidar:
+            motor_right:
               {}
-            fastbot_1_wheel_left:
-              {}
-            fastbot_1_wheel_right:
+            wheel_caster:
               {}
       Update Interval: 0
       Value: true
@@ -161,9 +149,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 0
+      Max Intensity: 192
       Min Color: 0; 0; 0
-      Min Intensity: 0
+      Min Intensity: 26
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
@@ -176,7 +164,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fastbot_1/scan
+        Value: /scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -217,12 +205,12 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fastbot_1/odom
+        Value: /odom
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: fastbot_1_odom
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -265,25 +253,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3.5
+      Distance: 6.852468490600586
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: -1.8343838453292847
+        Y: 4.115384578704834
+        Z: 0.050588056445121765
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.10000000149011612
-      Pitch: 1.5697963237762451
+      Pitch: 1.5047963857650757
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.141590118408203
+      Yaw: 2.9965898990631104
     Saved: ~
 Window Geometry:
   Displays:

@@ -39,12 +39,12 @@ public:
 
     // Subscribe to scan
     subscriber_laser_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        "/fastbot_1/scan", qos,
+        "/scan", qos,
         std::bind(&Patrol::laserscan_callback, this, std::placeholders::_1));
 
     // Publisher for movement commands
-    publisher_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(
-        "/fastbot_1/cmd_vel", 10);
+    publisher_vel_ =
+        this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
 
     // Timer for controlling movement
     auto timer_period = std::chrono::milliseconds(100);
@@ -67,7 +67,36 @@ private:
     // Go from index 50 to 150 to find the maximum distance and index where this
     // occurs
 
-    for (size_t i = min_laser_range_ + 3; i < max_laser_range_ - 3; ++i) {
+    for (size_t i = 0 + 3; i < 112 - 3; ++i) {
+
+      float sum = 0.0f;
+      int count = 0;
+
+      // 7-ray window: i-3 ... i+3
+      for (size_t j = i - 3; j <= i + 3; ++j) {
+
+        const float r = msg->ranges[j];
+
+        if (std::isfinite(r)) {
+          sum += r;
+          count++;
+        }
+      }
+
+      // skip invalid windows
+      if (count == 0) {
+        continue;
+      }
+
+      const float average = sum / static_cast<float>(count);
+
+      if (average > max_distance) {
+        max_distance = average;
+        max_distance_index = i;
+      }
+    }
+
+    for (size_t i = 336 + 3; i < 447 - 3; ++i) {
 
       float sum = 0.0f;
       int count = 0;
@@ -101,13 +130,17 @@ private:
     //             max_distance, max_distance_index);
     // Determine angle we should face w.r.t. the x axis
     direction_ = min_angle + max_distance_index * angle_increment;
+    if (direction_ > M_PI) {
+      direction_ -= 2 * M_PI;
+    }
     // RCLCPP_INFO(this->get_logger(), "Recommended direction of travel is %.2f
     // ",
     //             direction_);
 
     turn_ = false;
 
-    for (size_t i = 90; i < 110; ++i) {
+    // Front sector near angle 0
+    for (size_t i = 0; i < 10; ++i) {
 
       const float range = msg->ranges[i];
 
@@ -116,14 +149,26 @@ private:
         break;
       }
     }
+
+    // Front sector near 2*pi
+    if (!turn_) {
+
+      for (size_t i = 438; i < 448; ++i) {
+
+        const float range = msg->ranges[i];
+
+        if (std::isfinite(range) && range < 0.35f) {
+          turn_ = true;
+          break;
+        }
+      }
+    }
   }
 
 private:
   void timer_callback() {
     auto action = geometry_msgs::msg::Twist();
-
     action.linear.x = 0.1;
-
     if (turn_) {
       action.angular.z = direction_ / 2.0;
     } else {
