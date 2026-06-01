@@ -24,12 +24,14 @@ public:
         name_service, std::bind(&DirectionService::direction_callback, this,
                                 std::placeholders::_1, std::placeholders::_2));
 
-    RCLCPP_INFO(this->get_logger(), "Direction Service initialized");
+    RCLCPP_INFO(this->get_logger(), "Direction Service Ready");
   }
 
 private:
   void direction_callback(const std::shared_ptr<Direction::Request> request,
                           std::shared_ptr<Direction::Response> response) {
+
+    RCLCPP_INFO(this->get_logger(), "Service Requested");
 
     // Read in values from our service request
     sensor_msgs::msg::LaserScan laser_data = request->laser_data;
@@ -56,19 +58,22 @@ private:
 
     if ((total_dist_sec_front >= total_dist_sec_left) &&
         (total_dist_sec_front >= total_dist_sec_right)) {
-      RCLCPP_INFO(this->get_logger(), "Most open area is forward");
+      RCLCPP_INFO(this->get_logger(), "Service Response: forward");
       response->direction = "forward";
+      RCLCPP_INFO(this->get_logger(), "Service Completed");
       return;
 
     } else if ((total_dist_sec_left >= total_dist_sec_front) &&
                (total_dist_sec_left >= total_dist_sec_right)) {
-      RCLCPP_INFO(this->get_logger(), "Most open area is left");
+      RCLCPP_INFO(this->get_logger(), "Service Response: left");
       response->direction = "left";
+      RCLCPP_INFO(this->get_logger(), "Service Completed");
       return;
 
     } else {
-      RCLCPP_INFO(this->get_logger(), "Most open area is right");
+      RCLCPP_INFO(this->get_logger(), "Service Response: right");
       response->direction = "right";
+      RCLCPP_INFO(this->get_logger(), "Service Completed");
       return;
     }
 
