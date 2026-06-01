@@ -12,9 +12,11 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(custom_interfaces REQUIRED)
 
 # Create executable
 add_executable(patrol_executable src/patrol.cpp)
+add_executable(direction_service_executable src/direction_service.cpp)
 
 # Add dependencies
 ament_target_dependencies(patrol_executable
@@ -25,9 +27,16 @@ ament_target_dependencies(patrol_executable
   tf2_geometry_msgs
   )
 
+ament_target_dependencies(direction_service_executable
+  rclcpp
+  sensor_msgs
+  custom_interfaces
+  )
+
 # Install executables
 install(TARGETS
   patrol_executable
+  direction_service_executable
   DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files
