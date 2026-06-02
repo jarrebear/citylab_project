@@ -56,6 +56,13 @@ private:
         sumSector(laser_data, direction_angles_["sec_right"][0],
                   direction_angles_["sec_right"][1]);
 
+    // RCLCPP_INFO(this->get_logger(), "Total distance front: %.2f",
+    //             total_dist_sec_front);
+    // RCLCPP_INFO(this->get_logger(), "Total distance right: %.2f",
+    //             total_dist_sec_right);
+    // RCLCPP_INFO(this->get_logger(), "Total distance left: %.2f",
+    //             total_dist_sec_left);
+
     if ((total_dist_sec_front >= total_dist_sec_left) &&
         (total_dist_sec_front >= total_dist_sec_right)) {
       RCLCPP_INFO(this->get_logger(), "Service Response: forward");

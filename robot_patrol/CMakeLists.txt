@@ -18,6 +18,7 @@ find_package(custom_interfaces REQUIRED)
 add_executable(patrol_executable src/patrol.cpp)
 add_executable(direction_service_executable src/direction_service.cpp)
 add_executable(direction_tester_executable src/test_service.cpp)
+add_executable(patrol_client_executable src/patrol_with_service.cpp)
 
 # Add dependencies
 ament_target_dependencies(patrol_executable
@@ -40,11 +41,19 @@ ament_target_dependencies(direction_tester_executable
   custom_interfaces
   )
 
+  ament_target_dependencies(patrol_client_executable
+  rclcpp
+  sensor_msgs
+  custom_interfaces
+  geometry_msgs
+  )
+
 # Install executables
 install(TARGETS
   patrol_executable
   direction_service_executable
   direction_tester_executable
+  patrol_client_executable
   DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files
