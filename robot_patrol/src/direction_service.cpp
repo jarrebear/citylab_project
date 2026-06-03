@@ -126,6 +126,8 @@ private:
   float range_min_;
   float range_max_;
   bool first_scan_ = true;
+  double penalty_ = -1.0;
+  double penalty_range_ = 0.35;
 
 private:
   double sumSector(const sensor_msgs::msg::LaserScan &scan, double a0,
@@ -146,20 +148,35 @@ private:
     if (i0 <= i1) {
       for (int i = i0; i <= i1; ++i) {
         double r = scan.ranges[static_cast<std::size_t>(i)];
-        if (std::isfinite(r) && r >= range_min_ && r <= range_max_)
-          sum += r;
+        if (std::isfinite(r) && r >= range_min_ && r <= range_max_) {
+          if (r < penalty_range_) {
+            sum += r + penalty_;
+          } else {
+            sum += r;
+          }
+        }
       }
     } else {
       // Wrap-around: e.g. front sector in [0, 2π] scan
       for (int i = i0; i < n - 1; ++i) {
         double r = scan.ranges[static_cast<std::size_t>(i)];
-        if (std::isfinite(r) && r >= range_min_ && r <= range_max_)
-          sum += r;
+        if (std::isfinite(r) && r >= range_min_ && r <= range_max_) {
+          if (r < penalty_range_) {
+            sum += r + penalty_;
+          } else {
+            sum += r;
+          }
+        }
       }
       for (int i = 0; i <= i1; ++i) {
         double r = scan.ranges[static_cast<std::size_t>(i)];
-        if (std::isfinite(r) && r >= range_min_ && r <= range_max_)
-          sum += r;
+        if (std::isfinite(r) && r >= range_min_ && r <= range_max_) {
+          if (r < penalty_range_) {
+            sum += r + penalty_;
+          } else {
+            sum += r;
+          }
+        }
       }
     }
     return sum;

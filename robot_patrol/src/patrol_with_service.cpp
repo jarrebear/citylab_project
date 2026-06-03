@@ -40,13 +40,13 @@ public:
     // Subscribe to laserscan to store data to be used in communicating with
     // service.
     subscriber_laser_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        "/fastbot_1/scan", 10,
+        "/scan", 10,
         std::bind(&PatrolServiceClient::laser_callback, this,
                   std::placeholders::_1));
 
     // Publisher for movement commands
-    publisher_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(
-        "/fastbot_1/cmd_vel", 10);
+    publisher_vel_ =
+        this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
 
     RCLCPP_INFO(this->get_logger(), "Patrol Service Client is Ready.");
   }

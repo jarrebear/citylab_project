@@ -36,7 +36,7 @@ public:
     // Subscribe to laserscan to store data to be used in communicating with
     // service.
     subscriber_laser_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        "/fastbot_1/scan", 10,
+        "/scan", 10,
         std::bind(&DirectionClientTest::laser_callback, this,
                   std::placeholders::_1));
 
