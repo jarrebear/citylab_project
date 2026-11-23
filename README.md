@@ -25,13 +25,6 @@ https://github.com/user-attachments/assets/6e8ff251-dd96-4c4f-96dc-a8fbf14eabfe
 | **ROS 2 patterns** | Publisher/subscriber, service server + client, action server, custom interfaces |
 | **Packages** | `robot_patrol` (nodes + launch files), `custom_interfaces` (service + action definitions) |
 
-## What a Hiring Manager Can Expect From This Repo
-
-- **Three ways of building the same behaviour.** Reactive patrol in one node, then refactored into a service-based design with separate decision logic and client, which shows architectural thinking rather than one monolithic script.
-- **Real sensor handling.** Raw 200-ray LiDAR scans are filtered (invalid/`inf` readings, min/max range checks, moving-average smoothing, angle wrap-around) before any decision is made.
-- **Closed-loop control.** The action server converts quaternion odometry into yaw with tf2 and runs a 10 Hz control loop with goal tolerances, feedback and cancellation.
-- **Clean ROS 2 packaging.** Custom `.srv` / `.action` interfaces live in their own package, with launch files and an RViz config for one-command demos.
-
 ## Skills Demonstrated
 
 | Area | Where it shows up |
