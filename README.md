@@ -174,7 +174,3 @@ Released under the [MIT License](LICENSE).
 ## Author
 
 **jarrebear**: [github.com/jarrebear](https://github.com/jarrebear)
-
-
-https://github.com/user-attachments/assets/3e8ed4b4-8f95-42b3-b239-d3b67ee66384
-
